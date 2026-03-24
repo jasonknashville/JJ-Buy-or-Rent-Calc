@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rent vs. Sell Calculator | The JK Team · RE/MAX 1st Choice</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --remax-red: #dc1a22;
+    --remax-blue: #003087;
+    --remax-dark-blue: #001a4d;
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --white: #ffffff;
+    --off-white: #f8f7f4;
+    --light-gray: #f0eff0;
+    --mid-gray: #6b7280;
+    --dark: #1a1a2e;
+    --card-shadow: 0 4px 24px rgba(0,48,135,0.10);
+    --card-shadow-hover: 0 8px 40px rgba(0,48,135,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: var(--remax-red);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .header img {
+    height: 48px;
+    object-fit: contain;
+  }
+  .header-tagline {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-align: right;
+  }
+  .header-tagline strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    background: linear-gradient(135deg, var(--remax-dark-blue) 0%, var(--remax-blue) 55%, #1a5fad 100%);
+    padding: 56px 32px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.13) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.18);
+    border: 1px solid rgba(201,168,76,0.45);
+    color: var(--gold-light);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.18;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .hero h1 span { color: var(--gold-light); }
+  .hero p {
+    color: rgba(255,255,255,0.78);
+    font-size: 16px;
+    font-weight: 300;
+    max-width: 560px;
+    margin: 0 auto;
+    position: relative;
+    line-height: 1.65;
+  }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+  @media(max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    padding: 28px 28px 24px;
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: var(--card-shadow-hover); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--light-gray);
+  }
+  .card-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .icon-blue { background: rgba(0,48,135,0.10); }
+  .icon-gold { background: rgba(201,168,76,0.14); }
+  .icon-red  { background: rgba(220,26,34,0.10); }
+  .icon-green{ background: rgba(22,163,74,0.10); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--remax-blue);
+  }
+
+  /* ─── FORM FIELDS ─── */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--mid-gray);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .field-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field-prefix, .field-suffix {
+    position: absolute;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--remax-blue);
+    pointer-events: none;
+  }
+  .field-prefix { left: 13px; }
+  .field-suffix { right: 13px; }
+  input[type="number"], input[type="range"] {
+    width: 100%;
+    padding: 11px 14px 11px 28px;
+    border: 1.5px solid #d1d5db;
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--dark);
+    background: var(--off-white);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--remax-blue);
+    box-shadow: 0 0 0 3px rgba(0,48,135,0.10);
+    background: #fff;
+  }
+  input.no-prefix { padding-left: 14px; }
+  input.has-suffix { padding-right: 32px; }
+
+  /* range */
+  input[type="range"] {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    height: 6px;
+    accent-color: var(--remax-blue);
+  }
+  .range-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .range-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--mid-gray); }
+  .range-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--remax-blue);
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* ─── TOGGLE ─── */
+  .toggle-group {
+    display: flex;
+    gap: 0;
+    background: var(--light-gray);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 22px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--mid-gray);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .toggle-btn.active {
+    background: var(--remax-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,48,135,0.22);
+  }
+
+  /* ─── RESULT PILLS ─── */
+  .result-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--off-white);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid transparent;
+  }
+  .result-pill.blue  { border-left-color: var(--remax-blue); }
+  .result-pill.gold  { border-left-color: var(--gold); }
+  .result-pill.red   { border-left-color: var(--remax-red); }
+  .result-pill.green { border-left-color: #16a34a; }
+
+  .pill-label { font-size: 12.5px; font-weight: 500; color: var(--mid-gray); }
+  .pill-value { font-size: 17px; font-weight: 700; color: var(--dark); }
+  .pill-value.green-text { color: #16a34a; }
+  .pill-value.red-text   { color: var(--remax-red); }
+  .pill-value.blue-text  { color: var(--remax-blue); }
+
+  /* ─── VERDICT BANNER ─── */
+  .verdict {
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .verdict.sell { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+  .verdict.rent { background: linear-gradient(135deg, var(--remax-blue) 0%, #1a5fad 100%); }
+  .verdict.neutral { background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); }
+  .verdict-icon { font-size: 36px; flex-shrink: 0; }
+  .verdict-text { color: #fff; }
+  .verdict-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .verdict-text p { font-size: 14px; opacity: 0.88; line-height: 1.5; }
+
+  /* ─── CHART AREA ─── */
+  .chart-wrap {
+    position: relative;
+    height: 280px;
+    margin-top: 8px;
+  }
+
+  /* ─── PAYMENT THRESHOLD ─── */
+  .threshold-bar {
+    background: var(--off-white);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 16px;
+    border: 1.5px dashed var(--gold);
+  }
+  .threshold-bar h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--dark);
+    margin-bottom: 10px;
+  }
+  .progress-wrap { position: relative; }
+  .progress-track {
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .progress-fill.ok   { background: linear-gradient(90deg, #16a34a, #4ade80); }
+  .progress-fill.warn { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .progress-fill.over { background: linear-gradient(90deg, var(--remax-red), #f87171); }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--mid-gray);
+  }
+  .progress-labels strong { color: var(--dark); font-weight: 700; }
+
+  /* ─── SECTION DIVIDER ─── */
+  .section-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--remax-blue);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, rgba(0,48,135,0.2), transparent);
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    text-align: center;
+    padding: 40px 24px 36px;
+    background: linear-gradient(135deg, var(--remax-dark-blue) 0%, var(--remax-blue) 100%);
+    border-radius: 20px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 20%, rgba(201,168,76,0.15) 0%, transparent 55%);
+  }
+  .cta-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: #fff;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .cta-section p {
+    color: rgba(255,255,255,0.75);
+    font-size: 15px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    color: var(--remax-dark-blue);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 38px;
+    border-radius: 50px;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    box-shadow: 0 4px 18px rgba(201,168,76,0.40);
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(201,168,76,0.50);
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    background: var(--remax-dark-blue);
+    color: rgba(255,255,255,0.72);
+    text-align: center;
+    padding: 28px 24px 22px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .footer strong { color: #fff; font-weight: 600; }
+  .footer .disclaimer {
+    font-size: 10.5px;
+    margin-top: 12px;
+    color: rgba(255,255,255,0.42);
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .footer-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.10);
+    margin: 14px auto;
+    max-width: 320px;
+  }
+
+  /* ─── HELPERS ─── */
+  .note {
+    font-size: 11.5px;
+    color: var(--mid-gray);
+    margin-top: 14px;
+    line-height: 1.6;
+  }
+  .two-col-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media(max-width: 480px){ .two-col-summary { grid-template-columns: 1fr; } }
+
+  .summary-box {
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: center;
+  }
+  .summary-box.blue-box { background: rgba(0,48,135,0.07); border: 1.5px solid rgba(0,48,135,0.15); }
+  .summary-box.gold-box { background: rgba(201,168,76,0.08); border: 1.5px solid rgba(201,168,76,0.28); }
+  .summary-box .box-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray); margin-bottom: 4px; }
+  .summary-box .box-val { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--remax-blue); }
+  .summary-box.gold-box .box-val { color: #9a7a28; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <img src="https://kvcore-library.s3.amazonaws.com/remax1stchoice8207/images/03b9616f75a8e185d56a93c799829fdf.png" alt="JK Team RE/MAX Logo">
+  <div class="header-tagline">
+    <strong>The JK Team</strong><br>RE/MAX 1st Choice · Springfield, TN
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Personalized Decision Tool</div>
+  <h1>Rent vs. <span>Sell</span> Calculator</h1>
+  <p>Model both paths side-by-side — keep the home as a rental or sell and use the equity as a down payment on your next purchase.</p>
+</section>
+
+<main class="main">
+
+  <!-- ─── INPUT SECTION ─── -->
+  <p class="section-label">Your Numbers</p>
+
+  <div class="grid-2">
+
+    <!-- CURRENT HOME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-blue">🏠</div>
+        <div class="card-title">Current Home</div>
+      </div>
+
+      <div class="field">
+        <label>Estimated Home Value</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="homeValue" value="230000" step="1000">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Mortgage Balance Remaining</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="mortgageBalance" value="80000" step="1000">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Estimated Selling Costs (% of value)</label>
+        <div class="field-row">
+          <input type="number" id="sellingCosts" value="6" step="0.5" min="0" max="15" class="no-prefix has-suffix">
+          <span class="field-suffix">%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Current Monthly Mortgage Payment (if renting)</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="currentMortgage" value="900" step="50">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Monthly Rental Income (if you keep it)</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="rentalIncome" value="1400" step="50">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Monthly Rental Expenses (taxes, ins, mgmt, repairs)</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="rentalExpenses" value="250" step="50">
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW HOME -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon icon-gold">🏡</div>
+        <div class="card-title">New Home Purchase</div>
+      </div>
+
+      <div class="field">
+        <label>New Home Purchase Price</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="newHomePrice" value="400000" step="5000">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Scenario: Down Payment Source</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="setScenario('sell', this)">Sell → Use Equity</button>
+          <button class="toggle-btn" onclick="setScenario('rent', this)">Keep & Rent → Save Down</button>
+          <button class="toggle-btn" onclick="setScenario('both', this)">Compare Both</button>
+        </div>
+        <div id="rentSaveNote" style="display:none;background:rgba(201,168,76,0.10);border-radius:8px;padding:10px 14px;font-size:12.5px;color:#6b7280;margin-bottom:10px;">
+          In this scenario you keep the current home and save toward a down payment from rental cash flow + other savings.
+        </div>
+      </div>
+
+      <div class="field" id="manualDownField" style="display:none">
+        <label>Additional Savings / Other Down Payment ($)</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="extraSavings" value="0" step="1000">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Interest Rate</label>
+        <div class="field-row">
+          <input type="number" id="interestRate" value="7.0" step="0.125" min="3" max="14" class="no-prefix has-suffix">
+          <span class="field-suffix">%</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Loan Term</label>
+        <div class="toggle-group" style="margin-bottom:0">
+          <button class="toggle-btn active" onclick="setTerm(30, this)">30-Year</button>
+          <button class="toggle-btn" onclick="setTerm(20, this)">20-Year</button>
+          <button class="toggle-btn" onclick="setTerm(15, this)">15-Year</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Monthly Budget Target (Payment Goal)</label>
+        <div class="field-row">
+          <span class="field-prefix">$</span>
+          <input type="number" id="budgetTarget" value="2100" step="50">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS ─── -->
+  <p class="section-label">Your Results</p>
+
+  <!-- VERDICT -->
+  <div class="verdict" id="verdictBanner">
+    <div class="verdict-icon" id="verdictIcon">⚖️</div>
+    <div class="verdict-text">
+      <h3 id="verdictTitle">Calculating…</h3>
+      <p id="verdictDesc"></p>
+    </div>
+  </div>
+
+  <!-- PAYMENT THRESHOLD -->
+  <div class="threshold-bar">
+    <h4>🎯 Monthly Payment vs. Your $<span id="targetLabel">2,100</span> Goal</h4>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill ok" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-labels">
+        <span>$0</span>
+        <span id="progressPayLabel">Est. Payment: <strong>—</strong></span>
+        <span>$<span id="progressMax">3,000</span></span>
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="grid-2">
+
+    <!-- SELL PATH -->
+    <div class="card" id="sellCard">
+      <div class="card-header">
+        <div class="card-icon icon-green">💰</div>
+        <div class="card-title">Path A — Sell &amp; Buy</div>
+      </div>
+
+      <div class="two-col-summary">
+        <div class="summary-box blue-box">
+          <div class="box-label">Net Equity</div>
+          <div class="box-val" id="netEquity">—</div>
+        </div>
+        <div class="summary-box gold-box">
+          <div class="box-label">Down Payment</div>
+          <div class="box-val" id="sellDownPmt">—</div>
+        </div>
+      </div>
+
+      <div class="result-pill blue">
+        <span class="pill-label">New Loan Amount</span>
+        <span class="pill-value blue-text" id="sellLoanAmt">—</span>
+      </div>
+      <div class="result-pill green">
+        <span class="pill-label">Est. Monthly P&amp;I</span>
+        <span class="pill-value" id="sellPayment">—</span>
+      </div>
+      <div class="result-pill gold">
+        <span class="pill-label">Down Payment %</span>
+        <span class="pill-value" id="sellDownPct">—</span>
+      </div>
+      <div class="result-pill blue">
+        <span class="pill-label">PMI Required?</span>
+        <span class="pill-value" id="sellPMI">—</span>
+      </div>
+      <div class="result-pill blue">
+        <span class="pill-label">Under Budget?</span>
+        <span class="pill-value" id="sellUnderBudget">—</span>
+      </div>
+
+      <div class="note">✅ Eliminates current mortgage obligation. Simplifies finances — one home, one payment.</div>
+    </div>
+
+    <!-- RENT PATH -->
+    <div class="card" id="rentCard">
+      <div class="card-header">
+        <div class="card-icon icon-red">🔑</div>
+        <div class="card-title">Path B — Rent &amp; Buy</div>
+      </div>
+
+      <div class="two-col-summary">
+        <div class="summary-box blue-box">
+          <div class="box-label">Monthly Cash Flow</div>
+          <div class="box-val" id="rentCashFlow">—</div>
+        </div>
+        <div class="summary-box gold-box">
+          <div class="box-label">Annual Net</div>
+          <div class="box-val" id="rentAnnual">—</div>
+        </div>
+      </div>
+
+      <div class="result-pill blue">
+        <span class="pill-label">Down Payment (savings)</span>
+        <span class="pill-value blue-text" id="rentDownPmt">—</span>
+      </div>
+      <div class="result-pill green">
+        <span class="pill-label">Est. Monthly P&amp;I (New)</span>
+        <span class="pill-value" id="rentPayment">—</span>
+      </div>
+      <div class="result-pill red">
+        <span class="pill-label">Total Monthly Obligations</span>
+        <span class="pill-value red-text" id="rentTotal">—</span>
+      </div>
+      <div class="result-pill gold">
+        <span class="pill-label">Months to Save 10% Down</span>
+        <span class="pill-value" id="rentMonthsToSave">—</span>
+      </div>
+      <div class="result-pill blue">
+        <span class="pill-label">Under Budget? (new pmt only)</span>
+        <span class="pill-value" id="rentUnderBudget">—</span>
+      </div>
+
+      <div class="note">📊 Retains an appreciating asset & rental income, but carries dual mortgage obligations.</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-header">
+      <div class="card-icon icon-blue">📈</div>
+      <div class="card-title">5-Year Projection Comparison</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="projectionChart"></canvas>
+    </div>
+    <p class="note" style="margin-top:10px;">* Sell path assumes 3% annual appreciation on new home. Rent path adds rental equity growth + new home appreciation. Excludes taxes &amp; depreciation benefits.</p>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>Ready to Make the Right Move?</h2>
+    <p>Jason can walk you through every scenario with real market data for Robertson County and beyond.</p>
+    <a class="cta-btn" href="https://the-jason-kaczmarski-team-springfield-tn.remax.com/ask/9539cc58d5c28bd9c77d6755120798e0" target="_blank">Schedule a Free Strategy Call →</a>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <strong>Jason Kaczmarski · RE/MAX 1st Choice · 615-384-7355</strong>
+  <hr class="footer-divider">
+  <div class="disclaimer">
+    This calculator is provided for educational and informational purposes only and does not constitute financial, legal, or real estate advice. All calculations are estimates based on user-provided inputs. Actual results may vary based on market conditions, lender qualifications, closing costs, tax obligations, and other factors. Information deemed reliable but not guaranteed. Licensed through Realtracs MLS. Equal Housing Opportunity. © 2025 The JK Team · RE/MAX 1st Choice.
+  </div>
+</footer>
+
+<script>
+// ─── STATE ───
+let loanTerm = 30;
+let scenario = 'sell'; // 'sell' | 'rent' | 'both'
+let chart = null;
+
+function setTerm(t, btn) {
+  loanTerm = t;
+  document.querySelectorAll('.toggle-btn').forEach(b => {
+    if ([30,20,15].includes(parseInt(b.textContent))) b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  calc();
+}
+function setScenario(s, btn) {
+  scenario = s;
+  document.querySelectorAll('.toggle-group')[1].querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('manualDownField').style.display = (s === 'rent') ? 'block' : 'none';
+  document.getElementById('rentSaveNote').style.display = (s === 'rent') ? 'block' : 'none';
+  calc();
+}
+
+// ─── UTILS ───
+function fmt(n, decimals=0) {
+  return '$' + Math.round(n).toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+}
+function pmt(rate, n, pv) {
+  if (rate === 0) return pv / n;
+  const r = rate / 12;
+  return pv * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+}
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+// ─── MAIN CALC ───
+function calc() {
+  const homeValue     = v('homeValue');
+  const mortgageBal   = v('mortgageBalance');
+  const sellingCostPct= v('sellingCosts') / 100;
+  const curMortgage   = v('currentMortgage');
+  const rentalIncome  = v('rentalIncome');
+  const rentalExp     = v('rentalExpenses');
+  const newPrice      = v('newHomePrice');
+  const rate          = v('interestRate') / 100;
+  const budget        = v('budgetTarget');
+  const extraSavings  = v('extraSavings');
+
+  // ── SELL PATH ──
+  const sellingCostAmt = homeValue * sellingCostPct;
+  const netEquity = homeValue - mortgageBal - sellingCostAmt;
+  const sellDown = Math.max(netEquity, 0);
+  const sellLoan = Math.max(newPrice - sellDown, 0);
+  const sellPayAmt = pmt(rate, loanTerm * 12, sellLoan);
+  const sellDownPct = (sellDown / newPrice) * 100;
+  const sellNeedsPMI = sellDownPct < 20;
+
+  // ── RENT PATH ──
+  const cashFlow = rentalIncome - rentalExp - curMortgage;
+  const annualNet = cashFlow * 12;
+  const rentDown = Math.max(extraSavings, 0);
+  const rentLoan = Math.max(newPrice - rentDown, 0);
+  const rentPayAmt = pmt(rate, loanTerm * 12, rentLoan);
+  const rentTotal = rentPayAmt + curMortgage;
+  // months to save 10% down from cash flow
+  const targetDown = newPrice * 0.10;
+  const monthlySurplus = Math.max(cashFlow, 0);
+  const monthsToSave = monthlySurplus > 0 ? Math.ceil((targetDown - extraSavings) / monthlySurplus) : Infinity;
+
+  // ── DISPLAY SELL ──
+  document.getElementById('netEquity').textContent = fmt(netEquity);
+  document.getElementById('sellDownPmt').textContent = fmt(sellDown);
+  document.getElementById('sellLoanAmt').textContent = fmt(sellLoan);
+  document.getElementById('sellPayment').textContent = fmt(sellPayAmt) + '/mo';
+  document.getElementById('sellDownPct').textContent = sellDownPct.toFixed(1) + '%';
+  document.getElementById('sellPMI').textContent = sellNeedsPMI ? '⚠️ Yes' : '✅ No';
+  const sellOk = sellPayAmt <= budget;
+  const sellUBEl = document.getElementById('sellUnderBudget');
+  sellUBEl.textContent = sellOk ? `✅ Yes — saves ${fmt(budget - sellPayAmt)}/mo` : `❌ Over by ${fmt(sellPayAmt - budget)}/mo`;
+  sellUBEl.className = 'pill-value ' + (sellOk ? 'green-text' : 'red-text');
+  document.getElementById('sellPayment').className = 'pill-value ' + (sellOk ? 'green-text' : 'red-text');
+
+  // ── DISPLAY RENT ──
+  const cfEl = document.getElementById('rentCashFlow');
+  cfEl.textContent = fmt(cashFlow) + '/mo';
+  cfEl.style.color = cashFlow >= 0 ? '#16a34a' : '#dc1a22';
+  document.getElementById('rentAnnual').textContent = fmt(annualNet);
+  document.getElementById('rentDownPmt').textContent = fmt(rentDown);
+  document.getElementById('rentPayment').textContent = fmt(rentPayAmt) + '/mo';
+  document.getElementById('rentTotal').textContent = fmt(rentTotal) + '/mo';
+  document.getElementById('rentMonthsToSave').textContent = monthlySurplus > 0 ? monthsToSave + ' mos' : 'N/A (neg. cash flow)';
+  const rentOk = rentPayAmt <= budget;
+  const rentUBEl = document.getElementById('rentUnderBudget');
+  rentUBEl.textContent = rentOk ? `✅ Yes — saves ${fmt(budget - rentPayAmt)}/mo` : `❌ Over by ${fmt(rentPayAmt - budget)}/mo`;
+  rentUBEl.className = 'pill-value ' + (rentOk ? 'green-text' : 'red-text');
+  document.getElementById('rentPayment').className = 'pill-value ' + (rentOk ? 'green-text' : 'red-text');
+
+  // ── PROGRESS BAR ──
+  const activePayment = (scenario === 'rent') ? rentPayAmt : sellPayAmt;
+  const maxBar = Math.max(budget * 1.5, activePayment * 1.2, 2500);
+  const pct = Math.min((activePayment / maxBar) * 100, 100);
+  const fill = document.getElementById('progressFill');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill ' + (activePayment <= budget ? 'ok' : activePayment <= budget * 1.15 ? 'warn' : 'over');
+  document.getElementById('progressPayLabel').innerHTML = `Est. Payment: <strong>${fmt(activePayment)}/mo</strong>`;
+  document.getElementById('progressMax').textContent = Math.round(maxBar).toLocaleString();
+  document.getElementById('targetLabel').textContent = budget.toLocaleString();
+
+  // ── VERDICT ──
+  const banner = document.getElementById('verdictBanner');
+  const icon = document.getElementById('verdictIcon');
+  const title = document.getElementById('verdictTitle');
+  const desc = document.getElementById('verdictDesc');
+
+  if (scenario === 'both') {
+    if (sellOk && !rentOk) {
+      banner.className = 'verdict sell';
+      icon.textContent = '🏆';
+      title.textContent = 'Sell Path Wins for Your Budget';
+      desc.textContent = `Selling puts you under your $${budget.toLocaleString()} goal (${fmt(sellPayAmt)}/mo). Renting the current home first puts the new payment at ${fmt(rentPayAmt)}/mo without a bigger down payment.`;
+    } else if (rentOk && !sellOk) {
+      banner.className = 'verdict rent';
+      icon.textContent = '🔑';
+      title.textContent = 'Rent Path Keeps You in Budget';
+      desc.textContent = `Building equity in both properties works here. New home P&I is ${fmt(rentPayAmt)}/mo. Total monthly obligation (both mortgages): ${fmt(rentTotal)}/mo.`;
+    } else if (sellOk && rentOk) {
+      banner.className = 'verdict neutral';
+      icon.textContent = '⚖️';
+      title.textContent = 'Both Paths Fit Your Budget';
+      desc.textContent = `Sell path payment: ${fmt(sellPayAmt)}/mo. Rent path new home payment: ${fmt(rentPayAmt)}/mo. Decision comes down to your risk tolerance and long-term wealth strategy.`;
+    } else {
+      banner.className = 'verdict neutral';
+      icon.textContent = '⚠️';
+      title.textContent = 'Both Paths Exceed Budget';
+      desc.textContent = `Try a lower purchase price or larger down payment. Sell path: ${fmt(sellPayAmt)}/mo. Rent path: ${fmt(rentPayAmt)}/mo. Your goal: $${budget.toLocaleString()}/mo.`;
+    }
+  } else if (scenario === 'sell') {
+    if (sellOk) {
+      banner.className = 'verdict sell';
+      icon.textContent = '✅';
+      title.textContent = `Sell Path: Under Budget by ${fmt(budget - sellPayAmt)}/mo`;
+      desc.textContent = `Your ${fmt(sellDown)} net equity creates a ${sellDownPct.toFixed(1)}% down payment, giving you a ${fmt(sellPayAmt)}/mo P&I payment on the new home.`;
+    } else {
+      banner.className = 'verdict neutral';
+      icon.textContent = '⚠️';
+      title.textContent = `Payment ${fmt(sellPayAmt - budget)}/mo Over Your Goal`;
+      desc.textContent = `At ${fmt(sellPayAmt)}/mo, this path exceeds your $${budget.toLocaleString()} target. Consider a lower purchase price or ask Jason about buy-down options.`;
+    }
+  } else {
+    if (rentOk) {
+      banner.className = 'verdict rent';
+      icon.textContent = '🔑';
+      title.textContent = `Rent Path: New Home Payment Fits Budget`;
+      desc.textContent = `New home P&I: ${fmt(rentPayAmt)}/mo — under your $${budget.toLocaleString()} goal. Your rental nets ${fmt(cashFlow)}/mo cash flow. Total dual obligation: ${fmt(rentTotal)}/mo.`;
+    } else {
+      banner.className = 'verdict neutral';
+      icon.textContent = '⚠️';
+      title.textContent = `New Home Payment ${fmt(rentPayAmt - budget)}/mo Over Goal`;
+      desc.textContent = `Without the equity down payment, the new home is harder to afford. Total dual obligation would be ${fmt(rentTotal)}/mo. Let's talk strategy.`;
+    }
+  }
+
+  // ── CHART ──
+  updateChart(newPrice, sellDown, rentDown, rate, loanTerm, homeValue, mortgageBal);
+}
+
+function updateChart(newPrice, sellDown, rentDown, rate, term, homeValue, mortBal) {
+  const years = 5;
+  const appRate = 0.03;
+  const labels = ['Now', 'Yr 1', 'Yr 2', 'Yr 3', 'Yr 4', 'Yr 5'];
+
+  const sellLoan = Math.max(newPrice - sellDown, 0);
+  const sellPmt = pmt(rate, term * 12, sellLoan);
+
+  const rentLoan = Math.max(newPrice - rentDown, 0);
+  const rentNewPmt = pmt(rate, term * 12, rentLoan);
+  const rentalIncome = v('rentalIncome');
+  const rentalExp = v('rentalExpenses');
+  const curMtg = v('currentMortgage');
+  const cashFlow = rentalIncome - rentalExp - curMtg;
+
+  // net worth projections (simplified)
+  const sellNetWorth = [sellDown];
+  const rentNetWorth = [homeValue - mortBal + rentDown]; // equity in both
+
+  let sellBal = sellLoan;
+  let rentNewBal = rentLoan;
+  let rentOldBal = mortBal;
+  let rentHomeVal = homeValue;
+  let sellNewVal = newPrice;
+
+  for (let y = 1; y <= years; y++) {
+    // sell path: one home appreciating, loan amortizing
+    for (let m = 0; m < 12; m++) {
+      const interest = sellBal * (rate / 12);
+      const principal = sellPmt - interest;
+      sellBal = Math.max(sellBal - principal, 0);
+    }
+    sellNewVal *= (1 + appRate);
+    sellNetWorth.push(Math.round(sellNewVal - sellBal));
+
+    // rent path: two homes appreciating
+    for (let m = 0; m < 12; m++) {
+      const i1 = rentNewBal * (rate / 12);
+      rentNewBal = Math.max(rentNewBal - (rentNewPmt - i1), 0);
+      const curPmt = pmt(rate, term * 12, mortBal); // approx
+      const i2 = rentOldBal * (rate / 12);
+      rentOldBal = Math.max(rentOldBal - (curPmt - i2), 0);
+    }
+    const newHomeVal = newPrice * Math.pow(1 + appRate, y);
+    rentHomeVal *= (1 + appRate);
+    rentNetWorth.push(Math.round((newHomeVal - rentNewBal) + (rentHomeVal - rentOldBal)));
+  }
+
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('projectionChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Sell Path — Net Equity',
+          data: sellNetWorth,
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22,163,74,0.10)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: '#16a34a',
+          borderWidth: 2.5,
+        },
+        {
+          label: 'Rent Path — Combined Net Equity',
+          data: rentNetWorth,
+          borderColor: '#003087',
+          backgroundColor: 'rgba(0,48,135,0.07)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 5,
+          pointBackgroundColor: '#003087',
+          borderWidth: 2.5,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { family: 'DM Sans', size: 12 }, boxWidth: 14, padding: 20 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': $' + ctx.parsed.y.toLocaleString()
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: v => '$' + (v/1000).toFixed(0) + 'k',
+            font: { family: 'DM Sans', size: 11 }
+          },
+          grid: { color: 'rgba(0,0,0,0.05)' }
+        },
+        x: { ticks: { font: { family: 'DM Sans', size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ─── LIVE UPDATES ───
+document.querySelectorAll('input[type="number"]').forEach(el => {
+  el.addEventListener('input', calc);
+});
+
+// Pre-fill client's numbers from texts
+window.addEventListener('DOMContentLoaded', () => {
+  // Client: equity ~150k if sell, rent income ~80k/yr (~$6,667/mo seems high, assume maybe $1,400–1,600 realistic)
+  // "Rent = 80k" likely means current balance or rent income around $1,400-1,600/mo
+  // Down payment if sell ~150k, so we set home value to reflect that
+  document.getElementById('homeValue').value = 230000;   // estimate to yield ~150k equity
+  document.getElementById('mortgageBalance').value = 66000; // 230k - 6%costs - 66k ≈ 150k net
+  document.getElementById('rentalIncome').value = 1500;
+  document.getElementById('budgetTarget').value = 2100;
+  calc();
+});
+</script>
+</body>
+</html>
