@@ -497,7 +497,7 @@
         <label>Estimated Home Value</label>
         <div class="field-row">
           <span class="field-prefix">$</span>
-          <input type="number" id="homeValue" value="230000" step="1000">
+          <input type="number" id="homeValue" value="350000" step="1000">
         </div>
       </div>
 
@@ -1027,8 +1027,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Client: equity ~150k if sell, rent income ~80k/yr (~$6,667/mo seems high, assume maybe $1,400–1,600 realistic)
   // "Rent = 80k" likely means current balance or rent income around $1,400-1,600/mo
   // Down payment if sell ~150k, so we set home value to reflect that
-  document.getElementById('homeValue').value = 230000;   // estimate to yield ~150k equity
-  document.getElementById('mortgageBalance').value = 66000; // 230k - 6%costs - 66k ≈ 150k net
+  document.getElementById('homeValue').value = 350000;   // estimate to yield ~150k equity
+  document.getElementById('mortgageBalance').value = 150000; // 230k - 6%costs - 66k ≈ 150k net
   document.getElementById('rentalIncome').value = 1500;
   document.getElementById('budgetTarget').value = 2100;
   calc();
