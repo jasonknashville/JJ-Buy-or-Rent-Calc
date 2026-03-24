@@ -497,7 +497,7 @@
         <label>Estimated Home Value</label>
         <div class="field-row">
           <span class="field-prefix">$</span>
-          <input type="number" id="homeValue" value="350000" step="1000">
+          <input type="number" id="homeValue" value="230000" step="1000">
         </div>
       </div>
 
@@ -569,8 +569,8 @@
         </div>
       </div>
 
-      <div class="field" id="manualDownField" style="display:none">
-        <label>Additional Savings / Other Down Payment ($)</label>
+      <div class="field" id="manualDownField">
+        <label>Down Payment Savings <span style="font-size:11px;font-weight:400;color:#6b7280;">(if keeping current home as rental)</span></label>
         <div class="field-row">
           <span class="field-prefix">$</span>
           <input type="number" id="extraSavings" value="0" step="1000">
@@ -580,7 +580,7 @@
       <div class="field">
         <label>Interest Rate</label>
         <div class="field-row">
-          <input type="number" id="interestRate" value="6.0" step="0.125" min="3" max="14" class="no-prefix has-suffix">
+          <input type="number" id="interestRate" value="7.0" step="0.125" min="3" max="14" class="no-prefix has-suffix">
           <span class="field-suffix">%</span>
         </div>
       </div>
@@ -766,8 +766,8 @@ function setScenario(s, btn) {
   scenario = s;
   document.querySelectorAll('.toggle-group')[1].querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('manualDownField').style.display = (s === 'rent') ? 'block' : 'none';
-  document.getElementById('rentSaveNote').style.display = (s === 'rent') ? 'block' : 'none';
+  
+  
   calc();
 }
 
@@ -1027,8 +1027,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Client: equity ~150k if sell, rent income ~80k/yr (~$6,667/mo seems high, assume maybe $1,400–1,600 realistic)
   // "Rent = 80k" likely means current balance or rent income around $1,400-1,600/mo
   // Down payment if sell ~150k, so we set home value to reflect that
-  document.getElementById('homeValue').value = 350000;   // estimate to yield ~150k equity
-  document.getElementById('mortgageBalance').value = 150000; // 230k - 6%costs - 66k ≈ 150k net
+  document.getElementById('homeValue').value = 230000;   // estimate to yield ~150k equity
+  document.getElementById('mortgageBalance').value = 66000; // 230k - 6%costs - 66k ≈ 150k net
   document.getElementById('rentalIncome').value = 1500;
   document.getElementById('budgetTarget').value = 2100;
   calc();
